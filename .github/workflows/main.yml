@@ -1,0 +1,31 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Windows-CRD
+
+on: 
+  workflow_dispatch:
+    inputs:
+      authcode:
+        description: 'Enter CRD code'
+        required: true
+      pincode:
+        description: 'Six digit Pin'
+        required: true
+
+jobs:
+  build:
+    name: Built Connection
+    runs-on: windows-latest
+    
+    steps:
+      - name: Installing Essentials
+        run: |
+          Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+           & {$P = $env:TEMP + '\chromeremotedesktophost.msi'; Invoke-WebRequest 'https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi' -OutFile $P; Start-Process $P -Wait; Remove-Item $P}
+           & {$P = $env:TEMP + '\chrome_installer.exe'; Invoke-WebRequest 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile $P; Start-Process -FilePath $P -Args '/install' -Verb RunAs -Wait; Remove-Item $P}
+
+      - name: Starting CRD 
+        run: ${{ github.event.inputs.authcode }} -pin=${{ github.event.inputs.pincode }}
+        
+      - name: Time Counter
+        run: Start-Sleep -Seconds 21600
