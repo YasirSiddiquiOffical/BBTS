@@ -7,31 +7,5 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Download
-      run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
-    - name: Extract
-      run: Expand-Archive ngrok.zip
-    - name: Auth
-      run: .\ngrok\ngrok.exe authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-    - name: Enable TS
-      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -Value 0
-    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
-    - name: Set User and Password
-      shell: powershell
-      run: |
-        $username = "runneradmin"
-        $password = "P@ssw0rd!"
-        $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-        
-        # Check if the user already exists
-        if (Get-LocalUser -Name $username -ErrorAction SilentlyContinue) {
-            # Update the user's password
-            Set-LocalUser -Name $username -Password $securePassword
-        } else {
-            # Create a new local user
-            New-LocalUser -Name $username -Password $securePassword
-            Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username
-        }
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp --region ap 3389
