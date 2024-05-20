@@ -21,9 +21,10 @@ jobs:
     - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
     - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
     - name: Set User and Password
+      shell: powershell
       run: |
         $username = "Yasir"
-        $password = "123456"
+        $password = "Abasit907$S@"
         $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
         New-LocalUser -Name $username -Password $securePassword
         Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username
