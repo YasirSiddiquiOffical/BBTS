@@ -23,7 +23,15 @@ jobs:
         $username = "runneradmin"
         $password = "P@ssw0rd!"
         $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
-        New-LocalUser -Name $username -Password $securePassword
-        Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username
+        
+        # Check if the user already exists
+        if (Get-LocalUser -Name $username -ErrorAction SilentlyContinue) {
+            # Update the user's password
+            Set-LocalUser -Name $username -Password $securePassword
+        } else {
+            # Create a new local user
+            New-LocalUser -Name $username -Password $securePassword
+            Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username
+        }
     - name: Create Tunnel
       run: .\ngrok\ngrok.exe tcp --region ap 3389
