@@ -1,0 +1,1 @@
+To begin, navigate to "Settings" and then proceed to "secrets and variables". Click on the drop-down menu for "Action" and select "Add New Repository Secret". Name the secret as * : "NGROK_AUTH_TOKEN" and add your NGROK AUTH TOKEN as the secret value. You can find your NGROK AUTH TOKEN at "https://dashboard.ngrok.com/get-started/your-authtoken".
