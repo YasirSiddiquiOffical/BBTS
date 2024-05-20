@@ -13,7 +13,7 @@
 - Name the secret as "**NGROK_AUTH_TOKEN**".
 
 ## **Input NGROK AUTH TOKEN**
-- Add your "**NGROK_AUTH_TOKEN**" as the secret value.
+- Add your "**NGROK AUTH TOKEN**" as the secret value.
 - You can find your NGROK AUTH TOKEN at "https://dashboard.ngrok.com/get-started/your-authtoken".
 
 ## **How To Access RDP**
