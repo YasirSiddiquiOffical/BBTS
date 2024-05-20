@@ -35,10 +35,8 @@ jobs:
     - name: Starting CRD
       shell: powershell
       run: |
-        $authCode = '${{ github.event.inputs.authcode }}'
-        $pinCode = '${{ github.event.inputs.pincode }}'
-        & "C:\Program Files\Google\Chrome Remote Desktop\chromeremotedesktop.exe" --start-host --code=$authCode --pin=$pinCode
-      
+        & "C:\Program Files\Google\Chrome Remote Desktop\chromeremotedesktop.exe" --start-host --code=${{ github.event.inputs.authcode }} --pin=${{ github.event.inputs.pincode }}
+
     - name: Keep Alive
       shell: powershell
       run: Start-Sleep -Seconds 21600
