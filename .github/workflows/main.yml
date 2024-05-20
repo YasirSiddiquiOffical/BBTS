@@ -1,46 +1,25 @@
-name: Windows-CRD
+name: Cl
 
-on: 
-  workflow_dispatch:
-    inputs:
-      authcode:
-        description: 'Enter CRD code'
-        required: true
-      pincode:
-        description: 'Six digit Pin'
-        required: true
-  
+on: [push, workflow_dispatch]
+
 jobs:
   build:
-    name: Built Connection
-    runs-on: windows-latest
-    
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v2
 
-    - name: Initializing Setup
-      shell: powershell
-      run: |
-        # Disable Windows Defender Firewall
-        Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
-        
-        # Install Chrome Remote Desktop Host
-        $chromeRemoteDesktopHostMSI = "$env:TEMP\chromeremotedesktophost.msi"
-        Invoke-WebRequest -Uri 'https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi' -OutFile $chromeRemoteDesktopHostMSI
-        Start-Process -FilePath msiexec.exe -ArgumentList "/i", $chromeRemoteDesktopHostMSI, "/quiet" -Wait
-        
-        # Install Google Chrome
-        $chromeInstallerExe = "$env:TEMP\chrome_installer.exe"
-        Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile $chromeInstallerExe
-        Start-Process -FilePath "$chromeInstallerExe" -ArgumentList "/install", "/quiet" -Verb RunAs -Wait
-        
-    - name: Starting CRD
-      shell: powershell
-      run: |
-        # Start Chrome Remote Desktop Host
-        & "C:\Program Files\Google\Chrome Remote Desktop\chromeremotedesktop.exe" --start-host --code=${{ github.event.inputs.authcode }} --pin=${{ github.event.inputs.pincode }}
-      
-    - name: Keep Alive
-      shell: powershell
-      run: Start-Sleep -Seconds 21600
+    runs-on: windows-latest
+
+    steps:
+    - name: Download
+      run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+    - name: Extract
+      run: Expand-Archive ngrok.zip
+    - name: Auth
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Enable TS
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+    - name: Create Tunnel
+      run: .\ngrok\ngrok.exe tcp --region ap 3389
